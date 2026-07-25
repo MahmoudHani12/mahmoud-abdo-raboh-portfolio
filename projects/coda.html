@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CODA — Youth Clothing Initiative | Mahmoud Hani</title>
+  <meta name="description" content="Case study: CODA, a self-funded youth fashion brand founded and operated by Mahmoud Hani." />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+
+<style>
+/* ── Project-page extras (self-contained, no conflicts) ── */
+
+/* Hero */
+.project-hero{padding-top:120px;padding-bottom:72px;border-bottom:1px solid var(--border)}
+.project-hero__back{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:36px;transition:color var(--t)}
+.project-hero__back:hover{color:var(--accent)}
+.project-hero__tag{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.project-hero__title{font-family:var(--font-display);font-size:clamp(32px,5vw,52px);font-weight:400;color:var(--text);margin-bottom:16px;line-height:1.1}
+.project-hero__subtitle{font-size:16px;color:var(--text-muted);max-width:560px;line-height:1.7;margin-bottom:40px}
+.project-hero__meta{display:flex;gap:32px;flex-wrap:wrap}
+.project-hero__meta-item{display:flex;flex-direction:column;gap:4px}
+.project-hero__meta-label{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint)}
+.project-hero__meta-value{font-size:13.5px;font-weight:500;color:var(--text)}
+
+/* Metrics strip */
+.metrics-strip{background:var(--bg-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding-block:40px}
+.metrics-strip__grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.metric-block{padding:0 32px;border-right:1px solid var(--border)}
+.metric-block:first-child{padding-left:0}
+.metric-block:last-child{border-right:none}
+.metric-block__num{font-family:var(--font-display);font-size:36px;font-weight:400;color:var(--accent);line-height:1;margin-bottom:8px}
+.metric-block__label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
+
+/* Project content */
+.project-content{padding-block:80px}
+.project-section{margin-bottom:72px}
+.project-section:last-child{margin-bottom:0}
+.project-section__header{display:flex;align-items:baseline;gap:16px;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--border-soft)}
+.project-section__num{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--accent);flex-shrink:0}
+.project-section__title{font-size:20px;font-weight:600;color:var(--text)}
+.project-section__body{color:var(--text-muted);font-size:15px;line-height:1.75}
+.project-section__body p{margin-bottom:14px}
+.project-section__body p:last-child{margin-bottom:0}
+
+/* Process steps */
+.process-steps{display:flex;flex-direction:column;gap:16px}
+.process-step{display:flex;gap:20px;padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius)}
+.process-step__num{font-family:var(--font-display);font-size:22px;color:var(--accent);opacity:.4;flex-shrink:0;width:32px;text-align:right;line-height:1.3}
+.process-step__title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
+.process-step__text{font-size:13px;color:var(--text-muted);line-height:1.6}
+
+/* Lessons */
+.lessons-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.lesson-card{padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);border-left:3px solid var(--accent)}
+.lesson-card__title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.lesson-card__text{font-size:12.5px;color:var(--text-muted);line-height:1.6}
+
+/* Outcome metrics (2 only now) */
+.outcome-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:28px}
+.outcome-metric{padding:24px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);text-align:center}
+.outcome-metric__num{font-family:var(--font-display);font-size:32px;color:var(--accent);margin-bottom:6px;line-height:1}
+.outcome-metric__label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
+
+/* ══════════════════════════════════════════════════════════
+   3D GALLERY — signature element
+   ══════════════════════════════════════════════════════════ */
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+}
+
+/* Each slot is a 1:1 square */
+.gallery-slot{
+  aspect-ratio:1/1;
+  perspective:900px;
+  cursor:pointer;
+}
+
+/* The card that flips / tilts */
+.gallery-card{
+  width:100%;
+  height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform .55s cubic-bezier(.23,1,.32,1), box-shadow .55s ease;
+  border-radius:10px;
+  will-change:transform;
+}
+
+/* Hover: gentle 3-D tilt is handled by JS per-card.
+   On slot hover we also lift it. */
+.gallery-slot:hover .gallery-card{
+  box-shadow:0 32px 64px rgba(0,0,0,.7), 0 0 0 1px rgba(201,169,110,.25);
+}
+
+/* Front face — the actual image / placeholder */
+.gallery-face{
+  position:absolute;
+  inset:0;
+  border-radius:10px;
+  overflow:hidden;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+
+.gallery-face--front{
+  background:var(--bg-3);
+  border:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+}
+
+/* When a real <img> is inside */
+.gallery-face--front img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* Placeholder state (no real image yet) */
+.gallery-face--front .ph-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  width:100%;
+  height:100%;
+  padding:20px;
+}
+
+/* SVG icon container */
+.ph-icon{
+  width:56px;
+  height:56px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--accent-dim);
+  border:1px solid rgba(201,169,110,.18);
+  border-radius:12px;
+  flex-shrink:0;
+}
+.ph-icon svg{
+  width:28px;
+  height:28px;
+  fill:none;
+  stroke:var(--accent);
+  stroke-width:1.6;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.ph-title{
+  font-size:12px;
+  font-weight:600;
+  color:var(--text-muted);
+  text-align:center;
+  line-height:1.4;
+}
+
+.ph-hint{
+  font-size:10px;
+  font-weight:500;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--text-faint);
+  text-align:center;
+}
+
+/* Shimmer overlay when no image — subtle ambient */
+.gallery-face--front::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,rgba(201,169,110,.04) 0%,transparent 60%);
+  pointer-events:none;
+  border-radius:10px;
+}
+
+/* Reflection strip at bottom of card */
+.gallery-card__reflection{
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:40%;
+  background:linear-gradient(to top,rgba(201,169,110,.05),transparent);
+  border-radius:0 0 10px 10px;
+  pointer-events:none;
+  z-index:2;
+}
+
+/* Label bar — slides up on hover */
+.gallery-card__label{
+  position:absolute;
+  bottom:0;left:0;right:0;
+  padding:14px 16px;
+  background:linear-gradient(to top,rgba(10,10,10,.92) 60%,transparent);
+  border-radius:0 0 10px 10px;
+  transform:translateY(4px);
+  opacity:0;
+  transition:opacity .3s ease,transform .3s ease;
+  z-index:3;
+}
+.gallery-slot:hover .gallery-card__label{
+  opacity:1;
+  transform:translateY(0);
+}
+.gallery-card__label-text{
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+
+/* Add-image instruction badge — only on placeholder */
+.ph-badge{
+  position:absolute;
+  top:12px;right:12px;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--accent);
+  background:rgba(201,169,110,.1);
+  border:1px solid rgba(201,169,110,.2);
+  border-radius:4px;
+  padding:3px 8px;
+  z-index:4;
+}
+
+/* ── Section hint below gallery ─────────────────────────── */
+.gallery-hint{
+  margin-top:20px;
+  padding:14px 20px;
+  background:var(--bg-card);
+  border:1px dashed var(--border);
+  border-radius:var(--radius);
+  font-size:12px;
+  color:var(--text-faint);
+  line-height:1.6;
+}
+.gallery-hint strong{color:var(--text-muted)}
+
+/* Responsive gallery */
+@media(max-width:720px){
+  .gallery-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .metrics-strip__grid{grid-template-columns:repeat(2,1fr)}
+  .metric-block:nth-child(2){border-right:none}
+  .metric-block:nth-child(3){padding-left:0;border-right:1px solid var(--border)}
+  .metric-block:nth-child(1),.metric-block:nth-child(2){padding-bottom:24px;margin-bottom:24px;border-bottom:1px solid var(--border)}
+  .lessons-grid{grid-template-columns:1fr}
+  .outcome-metrics{grid-template-columns:1fr}
+  .project-hero__meta{gap:20px}
+}
+@media(max-width:480px){
+  .gallery-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="container nav__inner">
+    <a href="../index.html" class="nav__logo">Mahmoud <span>Hani</span></a>
+    <ul class="nav__links">
+      <li><a href="../index.html#about">About</a></li>
+      <li><a href="../index.html#projects">Projects</a></li>
+      <li><a href="../index.html#experience">Experience</a></li>
+      <li><a href="../index.html#skills">Skills</a></li>
+      <li><a href="../index.html#resume" class="nav__cta">Resume</a></li>
+    </ul>
+    <button class="nav__toggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- PROJECT HERO -->
+<header class="project-hero">
+  <div class="container">
+    <a href="../index.html#projects" class="project-hero__back">← Back to Projects</a>
+    <div class="project-hero__tag">Fashion · Entrepreneurship · Jan 2023 – Jan 2024</div>
+    <h1 class="project-hero__title">CODA — Youth<br>Clothing Initiative</h1>
+    <p class="project-hero__subtitle">
+      A self-funded fashion brand targeting Egyptian youth. Launched from zero,
+      operated for 12 months, and concluded with documented lessons in business
+      operations, supply chain, and financial planning.
+    </p>
+    <div class="project-hero__meta">
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">Role</span>
+        <span class="project-hero__meta-value">Founder &amp; Sole Operator</span>
+      </div>
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">Duration</span>
+        <span class="project-hero__meta-value">12 Months</span>
+      </div>
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">Type</span>
+        <span class="project-hero__meta-value">Self-Funded Personal Project</span>
+      </div>
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">Status</span>
+        <span class="project-hero__meta-value">Concluded (Academic Pivot)</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- METRICS STRIP -->
+<div class="metrics-strip">
+  <div class="container">
+    <div class="metrics-strip__grid">
+      <div class="metric-block">
+        <div class="metric-block__num">40,000</div>
+        <div class="metric-block__label">EGP Initial Investment</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-block__num">15–30</div>
+        <div class="metric-block__label">Monthly Orders (Active Season)</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-block__num">12</div>
+        <div class="metric-block__label">Months of Operation</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-block__num">1</div>
+        <div class="metric-block__label">Person Operated Solo</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECT CONTENT -->
+<div class="project-content">
+  <div class="container">
+
+    <!-- 01 Overview -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">01</span>
+        <h2 class="project-section__title">Project Overview</h2>
+      </div>
+      <div class="project-section__body">
+        <p>CODA was a youth-oriented clothing brand launched in January 2023 with EGP 40,000 in personal savings. The goal was to offer affordable, trend-aware fashion to Egyptian youth while gaining hands-on experience in running a product-based business from scratch.</p>
+        <p>The brand operated for 12 months before I made the deliberate decision to close it and redirect my energy toward academic development. The closure was not a failure — it was a documented decision based on identified operational gaps and a strategic reassessment of priorities.</p>
+      </div>
+    </div>
+
+    <!-- 02 Problem -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">02</span>
+        <h2 class="project-section__title">Problem</h2>
+      </div>
+      <div class="project-section__body">
+        <p>Egyptian youth fashion at the time lacked accessible, locally-curated options at competitive price points. Most available alternatives were either low-quality mass imports or international brands priced out of reach for the student segment.</p>
+        <p>I saw a gap between what young Egyptian consumers wanted and what was realistically available to them — and decided to test whether a small, curated, locally-run brand could fill it.</p>
+      </div>
+    </div>
+
+    <!-- 03 Objective -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">03</span>
+        <h2 class="project-section__title">Objective</h2>
+      </div>
+      <div class="project-section__body">
+        <p>Build a sustainable micro-brand in the Egyptian youth fashion market using personal funding, learning real business operations while generating revenue to cover costs.</p>
+        <p>Secondary objective: develop practical skills in inventory management, customer relations, pricing, and supply chain — skills not covered adequately in academic coursework at that stage.</p>
+      </div>
+    </div>
+
+    <!-- 04 My Role -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">04</span>
+        <h2 class="project-section__title">My Role</h2>
+      </div>
+      <div class="project-section__body">
+        <p>I managed every function of the business independently — there was no team. This included sourcing and selecting products, setting pricing, managing inventory, handling all customer communications, processing orders, and managing the financials from my initial EGP 40,000 investment.</p>
+        <p>The experience gave me practical exposure to functions that typically span multiple departments in larger organizations: procurement, sales, customer service, financial management, and logistics.</p>
+      </div>
+    </div>
+
+    <!-- 05 Process -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">05</span>
+        <h2 class="project-section__title">Process</h2>
+      </div>
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="process-step__num">1</div>
+          <div>
+            <div class="process-step__title">Market Observation</div>
+            <div class="process-step__text">Identified pricing gaps and demand patterns among Egyptian youth (ages 18–28) by observing what was available locally and what was missing at accessible price points.</div>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step__num">2</div>
+          <div>
+            <div class="process-step__title">Sourcing &amp; Initial Inventory</div>
+            <div class="process-step__text">Used the EGP 40,000 investment to source an initial inventory. Evaluated suppliers based on quality, cost, and minimum order quantities.</div>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step__num">3</div>
+          <div>
+            <div class="process-step__title">Launch &amp; Sales Operations</div>
+            <div class="process-step__text">Launched via social channels and direct customer contact. Managed incoming orders, customer service, and delivery logistics manually during active seasons.</div>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step__num">4</div>
+          <div>
+            <div class="process-step__title">Monitoring &amp; Adjustment</div>
+            <div class="process-step__text">Tracked monthly sales (15–30 items during active periods), monitored inventory levels, and adjusted pricing and product mix based on customer feedback.</div>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step__num">5</div>
+          <div>
+            <div class="process-step__title">Gap Analysis &amp; Closure Decision</div>
+            <div class="process-step__text">Identified key operational weaknesses: limited planning capacity, supply chain inefficiencies, and difficulty scaling as a solo operator while managing academic commitments.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 Outcomes -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">06</span>
+        <h2 class="project-section__title">Outcomes</h2>
+      </div>
+      <div class="project-section__body">
+        <p>The project ran for 12 months and generated consistent orders during active seasons (15–30 items per month). More importantly, it produced direct, first-hand experience across multiple business functions that no classroom exercise can replicate.</p>
+        <p>I concluded the project intentionally — not due to financial collapse — to redirect focus toward academic performance and larger, longer-term opportunities. The experience directly informs how I think about business operations, planning, and HR today.</p>
+        <div class="outcome-metrics">
+          <div class="outcome-metric">
+            <div class="outcome-metric__num">40K</div>
+            <div class="outcome-metric__label">EGP Self-Invested</div>
+          </div>
+          <div class="outcome-metric">
+            <div class="outcome-metric__num">15–30</div>
+            <div class="outcome-metric__label">Monthly Orders (Active Season)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07 Lessons -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">07</span>
+        <h2 class="project-section__title">Lessons Learned</h2>
+      </div>
+      <div class="lessons-grid">
+        <div class="lesson-card">
+          <div class="lesson-card__title">Planning before investing</div>
+          <div class="lesson-card__text">Launching without a structured business plan made early decisions reactive. A proper plan would have identified supply chain risks before they became operational problems.</div>
+        </div>
+        <div class="lesson-card">
+          <div class="lesson-card__title">Supply chain fragility</div>
+          <div class="lesson-card__text">Relying on a small number of suppliers with no backup options created vulnerability. Diversification and supplier relationship management matter even at micro-scale.</div>
+        </div>
+        <div class="lesson-card">
+          <div class="lesson-card__title">Solo operation limits</div>
+          <div class="lesson-card__text">Managing sourcing, sales, customer service, and finances alone is unsustainable beyond a certain volume. Delegation and structure are prerequisites for growth, not luxuries.</div>
+        </div>
+        <div class="lesson-card">
+          <div class="lesson-card__title">Strategic exits have value</div>
+          <div class="lesson-card__text">Deciding to close the business deliberately — rather than letting it fail — was itself a lesson in evaluating opportunity cost and making clear-headed resource allocation decisions.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 08 Gallery — 3D upgrade -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">08</span>
+        <h2 class="project-section__title">Gallery</h2>
+      </div>
+
+      <div class="gallery-grid">
+
+        <!<!-- Slot 1 — Product photos -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card">
+    <div class="gallery-face gallery-face--front">
+      <!-- هنا تم استبدال الـ ph-wrap بوسم الصورة مباشرة -->
+      <img src="../assets/Images/Coda-Customer1.jpeg" alt="CODA product photo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      <div class="gallery-card__reflection"></div>
+    </div>
+    <div class="gallery-card__label">
+      <div class="gallery-card__label-text">Product Photo</div>
+    </div>
+  </div>
+</div>
+
+        <!-- Slot 2 — Product photos -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card">
+    <div class="gallery-face gallery-face--front">
+      <img src="../assets/Images/Coda-Customer2.jpeg" alt="CODA product photo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      <div class="gallery-card__reflection"></div>
+    </div>
+    <div class="gallery-card__label">
+      <div class="gallery-card__label-text">Product Photo</div>
+    </div>
+  </div>
+</div>
+
+        <!-- Slot 3 — Product photos -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card">
+    <div class="gallery-face gallery-face--front">
+      <img src="../assets/Images/Coda-Customer3.jpeg" alt="CODA product photo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      <div class="gallery-card__reflection"></div>
+    </div>
+    <div class="gallery-card__label">
+      <div class="gallery-card__label-text">Product Photo</div>
+    </div>
+  </div>
+</div>
+
+        <!-- Slot 4 — Product photos -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card">
+    <div class="gallery-face gallery-face--front">
+      <img src="../assets/Images/Coda-Customer4.jpeg" alt="CODA product photo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      <div class="gallery-card__reflection"></div>
+    </div>
+    <div class="gallery-card__label">
+      <div class="gallery-card__label-text">Product Photo</div>
+    </div>
+  </div>
+</div>
+
+        <!-- Slot 5 — Product photos -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card">
+    <div class="gallery-face gallery-face--front">
+      <img src="../assets/Images/Coda-Customer5.jpeg" alt="CODA product photo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      <div class="gallery-card__reflection"></div>
+    </div>
+    <div class="gallery-card__label">
+      <div class="gallery-card__label-text">Product Photo</div>
+    </div>
+  </div>
+</div>
+
+        <!-- Slot 6 — Product photos -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card">
+    <div class="gallery-face gallery-face--front">
+      <img src="../assets/Images/Coda-Customer6.jpeg" alt="CODA product photo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      <div class="gallery-card__reflection"></div>
+    </div>
+    <div class="gallery-card__label">
+      <div class="gallery-card__label-text">Product Photo</div>
+    </div>
+  </div>
+</div>
+
+      </div><!-- /gallery-grid -->
+
+      <div class="gallery-hint" style="text-align: center; border: none; background: transparent; color: var(--text-muted);">
+    <strong>Collection Showcase</strong> · High-quality product captures and customer evidence.
+</div>
+
+    </div><!-- /gallery section -->
+
+  </div><!-- /container -->
+</div><!-- /project-content -->
+
+<div class="divider"></div>
+
+<!-- Other Projects -->
+<section class="section--tight" style="background:var(--bg-2);border-top:1px solid var(--border)">
+  <div class="container">
+    <div class="section-label" style="margin-bottom:24px">Other Projects</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <a href="ecoloop.html" class="btn btn--ghost">EcoLoop →</a>
+      <a href="edugrip.html" class="btn btn--ghost">EDUGRIP →</a>
+      <a href="../index.html" class="btn btn--ghost">← Back to Portfolio</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <div class="footer__copy">© 2026 Mahmoud Hani Mahmoud</div>
+    <a href="../index.html" class="footer__back">← Portfolio Home</a>
+  </div>
+</footer>
+
+<!-- ══ JS: 3-D tilt on gallery cards ══════════════════════ -->
+<script>
+/* Mobile nav (inherited from main.js pattern) */
+const toggle = document.querySelector('.nav__toggle');
+const links  = document.querySelector('.nav__links');
+if (toggle && links) {
+  toggle.addEventListener('click', () => links.classList.toggle('open'));
+  links.querySelectorAll('a').forEach(a =>
+    a.addEventListener('click', () => links.classList.remove('open'))
+  );
+}
+
+/* ── 3-D magnetic tilt ──────────────────────────────────── */
+const TILT_MAX   = 14;   // degrees max tilt
+const TILT_SCALE = 1.04; // subtle scale on hover
+const LIFT_PX    = -6;   // translateZ lift
+
+function applyTilt(card, rx, ry) {
+  card.style.transform =
+    `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(${LIFT_PX}px) scale(${TILT_SCALE})`;
+}
+
+function resetTilt(card) {
+  card.style.transition = 'transform .6s cubic-bezier(.23,1,.32,1), box-shadow .6s ease';
+  card.style.transform  = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0) scale(1)';
+}
+
+document.querySelectorAll('.gallery-slot[data-tilt]').forEach(slot => {
+  const card = slot.querySelector('.gallery-card');
+
+  slot.addEventListener('mousemove', e => {
+    const rect  = slot.getBoundingClientRect();
+    const xPct  = (e.clientX - rect.left)  / rect.width  - 0.5;  // -0.5 → 0.5
+    const yPct  = (e.clientY - rect.top)   / rect.height - 0.5;
+    const ry    =  xPct * TILT_MAX * 2;
+    const rx    = -yPct * TILT_MAX * 2;
+
+    card.style.transition = 'transform .08s linear, box-shadow .08s linear';
+    applyTilt(card, rx, ry);
+  });
+
+  slot.addEventListener('mouseleave', () => resetTilt(card));
+
+  /* Touch: single tap gives a brief tilt pulse */
+  slot.addEventListener('touchstart', e => {
+    const touch = e.touches[0];
+    const rect  = slot.getBoundingClientRect();
+    const xPct  = (touch.clientX - rect.left) / rect.width  - 0.5;
+    const yPct  = (touch.clientY - rect.top)  / rect.height - 0.5;
+    card.style.transition = 'transform .15s ease';
+    applyTilt(card, -yPct * TILT_MAX, xPct * TILT_MAX);
+    setTimeout(() => resetTilt(card), 600);
+  }, { passive: true });
+});
+
+/* ── Scroll fade-in ─────────────────────────────────────── */
+if ('IntersectionObserver' in window) {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.style.opacity  = '1';
+      e.target.style.transform = e.target.style.transform.replace('translateY(16px)', 'translateY(0)') || 'translateY(0)';
+      obs.unobserve(e.target);
+    });
+  }, { threshold: 0.07 });
+
+  document.querySelectorAll(
+    '.project-section, .process-step, .lesson-card, .gallery-slot, .metric-block'
+  ).forEach(el => {
+    el.style.opacity   = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = 'opacity .45s ease, transform .45s ease';
+    obs.observe(el);
+  });
+}
+</script>
+
+</body>
+</html>

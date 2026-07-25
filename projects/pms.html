@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>PMS — Performance Management System | Mahmoud Hani</title>
+  <meta name="description" content="Case study: a fully implemented, multi-source Performance Management System for an 8-branch Egyptian retail chain — converting impression-based reviews into a structured, weighted scoring framework."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── Design Tokens ─────────────────────────────────────────── */
+:root{
+  --bg:#0A0A0A;--bg-2:#111111;--bg-3:#181818;--bg-card:#141414;
+  --border:#222222;--border-soft:#1C1C1C;
+  --text:#F0EDE8;--text-muted:#888888;--text-faint:#444444;
+  --accent:#C9A96E;--accent-dim:rgba(201,169,110,.12);--accent-glow:rgba(201,169,110,.06);
+  --font-display:'Playfair Display',Georgia,serif;
+  --font-body:'Inter',-apple-system,sans-serif;
+  --radius:6px;--radius-lg:12px;--max-w:1080px;--t:200ms ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.7;min-height:100vh}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+.container{max-width:var(--max-w);margin-inline:auto;padding-inline:24px}
+.divider{height:1px;background:var(--border)}
+.section-label{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.section-title{font-family:var(--font-display);font-size:clamp(26px,3.5vw,34px);font-weight:400;color:var(--text);line-height:1.2;margin-bottom:16px}
+
+/* ── Navigation ─────────────────────────────────────────────── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav__inner{display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav__logo{font-size:14px;font-weight:600;letter-spacing:.04em}
+.nav__logo span{color:var(--accent)}
+.nav__links{display:flex;align-items:center;gap:28px}
+.nav__links a{font-size:13px;font-weight:500;color:var(--text-muted);transition:color var(--t)}
+.nav__links a:hover{color:var(--text)}
+.nav__cta{font-size:12px !important;font-weight:600 !important;letter-spacing:.06em !important;text-transform:uppercase;color:var(--accent) !important;border:1px solid rgba(201,169,110,.35);padding:6px 16px;border-radius:var(--radius);transition:background var(--t) !important}
+.nav__cta:hover{background:var(--accent-dim) !important}
+.nav__toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
+.nav__toggle span{display:block;width:22px;height:1.5px;background:var(--text-muted);transition:var(--t)}
+
+/* ── Project Hero ────────────────────────────────────────────── */
+.project-hero{padding-top:120px;padding-bottom:72px;border-bottom:1px solid var(--border)}
+.project-hero__back{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:36px;transition:color var(--t)}
+.project-hero__back:hover{color:var(--accent)}
+.project-hero__tag{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.project-hero__title{font-family:var(--font-display);font-size:clamp(32px,5vw,54px);font-weight:400;color:var(--text);margin-bottom:20px;line-height:1.08}
+.project-hero__subtitle{font-size:16px;color:var(--text-muted);max-width:600px;line-height:1.78;margin-bottom:36px}
+.project-hero__meta{display:flex;gap:32px;flex-wrap:wrap;margin-bottom:28px}
+.project-hero__meta-item{display:flex;flex-direction:column;gap:4px}
+.project-hero__meta-label{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint)}
+.project-hero__meta-value{font-size:13.5px;font-weight:500;color:var(--text)}
+
+/* Confidentiality notice */
+.conf-notice{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);max-width:640px}
+.conf-notice__icon{font-size:14px;flex-shrink:0;margin-top:2px;opacity:.8}
+.conf-notice__text{font-size:12.5px;color:var(--text-muted);line-height:1.65}
+
+/* ── Metrics Strip ───────────────────────────────────────────── */
+.metrics-strip{background:var(--bg-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding-block:40px}
+.metrics-strip__grid{display:grid;grid-template-columns:repeat(5,1fr)}
+.metric-block{padding:0 24px;border-right:1px solid var(--border)}
+.metric-block:first-child{padding-left:0}
+.metric-block:last-child{border-right:none}
+.metric-block__num{font-family:var(--font-display);font-size:32px;font-weight:400;color:var(--accent);line-height:1;margin-bottom:8px}
+.metric-block__label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);line-height:1.4}
+
+/* ── Section Structure ───────────────────────────────────────── */
+.project-content{padding-block:80px}
+.project-section{margin-bottom:72px}
+.project-section:last-child{margin-bottom:0}
+.project-section__header{display:flex;align-items:baseline;gap:16px;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--border-soft)}
+.project-section__num{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--accent);flex-shrink:0}
+.project-section__title{font-size:20px;font-weight:600;color:var(--text)}
+.project-section__body{color:var(--text-muted);font-size:15px;line-height:1.78}
+.project-section__body p{margin-bottom:14px}
+.project-section__body p:last-child{margin-bottom:0}
+
+/* ── Status Badges ───────────────────────────────────────────── */
+.status-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.status-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:4px}
+.status-badge--done{color:#4ade80;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.18)}
+.status-badge__dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* ── Architecture Cards ──────────────────────────────────────── */
+.arch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.arch-card{padding:24px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);position:relative;overflow:hidden;transition:border-color var(--t),transform var(--t)}
+.arch-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:.35}
+.arch-card:hover{border-color:rgba(201,169,110,.3);transform:translateY(-2px)}
+.arch-card__icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--accent-dim);border:1px solid rgba(201,169,110,.18);border-radius:8px;margin-bottom:14px}
+.arch-card__icon svg{width:20px;height:20px;fill:none;stroke:var(--accent);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.arch-card__title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
+.arch-card__text{font-size:12px;color:var(--text-muted);line-height:1.65}
+.arch-card__tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(201,169,110,.15);border-radius:4px;padding:2px 8px;margin-top:10px}
+
+/* ── Multi-Source Diagram ────────────────────────────────────── */
+.source-diagram{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:4px}
+.source-node{padding:20px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);text-align:center;position:relative;transition:border-color var(--t)}
+.source-node:hover{border-color:rgba(201,169,110,.25)}
+.source-node::after{content:'→';position:absolute;right:-14px;top:50%;transform:translateY(-50%);color:var(--text-faint);font-size:14px;z-index:1}
+.source-node:last-child::after{display:none}
+.source-node__icon{font-size:22px;margin-bottom:10px;display:block}
+.source-node__title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px}
+.source-node__sub{font-size:10px;color:var(--text-faint);line-height:1.45}
+.source-result{grid-column:1/-1;margin-top:4px;padding:18px 22px;background:var(--accent-dim);border:1px solid rgba(201,169,110,.2);border-radius:var(--radius);display:flex;align-items:center;gap:14px}
+.source-result__label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);white-space:nowrap}
+.source-result__text{font-size:13px;color:var(--text-muted)}
+
+/* ── Evaluation Form Cards ───────────────────────────────────── */
+.eval-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.eval-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color var(--t),transform var(--t)}
+.eval-card:hover{border-color:rgba(201,169,110,.3);transform:translateY(-2px)}
+.eval-card__header{padding:20px 24px 16px;border-bottom:1px solid var(--border-soft);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.eval-card__role-tag{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.eval-card__title{font-size:17px;font-weight:600;color:var(--text)}
+.eval-card__badge{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--text-faint);background:var(--bg-3);border:1px solid var(--border);border-radius:4px;padding:4px 10px;white-space:nowrap;flex-shrink:0}
+.eval-card__body{padding:20px 24px}
+.kpi-category{margin-bottom:16px}
+.kpi-category:last-child{margin-bottom:0}
+.kpi-category__header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kpi-category__name{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
+.kpi-category__weight{font-family:var(--font-display);font-size:16px;color:var(--accent)}
+.kpi-list{display:flex;flex-direction:column;gap:7px}
+.kpi-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:var(--bg-3);border-radius:var(--radius)}
+.kpi-row__name{font-size:12px;color:var(--text-muted);flex:1}
+.kpi-row__source{font-size:10px;font-weight:500;letter-spacing:.04em;color:var(--text-faint);background:var(--bg-2);border:1px solid var(--border-soft);border-radius:3px;padding:2px 7px;white-space:nowrap}
+.kpi-row__w{font-size:12px;font-weight:700;color:var(--accent);min-width:32px;text-align:right}
+.eval-card__footer{padding:14px 24px;border-top:1px solid var(--border-soft);display:flex;gap:0;overflow:hidden;border-radius:0 0 var(--radius-lg) var(--radius-lg)}
+.weight-bar{height:4px}
+
+/* ── 3D Deliverables Gallery ─────────────────────────────────── */
+.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.gallery-slot{aspect-ratio:1/1;perspective:900px;cursor:pointer}
+.gallery-card-3d{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.23,1,.32,1),box-shadow .55s ease;border-radius:10px;will-change:transform}
+.gallery-slot:hover .gallery-card-3d{box-shadow:0 28px 56px rgba(0,0,0,.7),0 0 0 1px rgba(201,169,110,.25)}
+.gallery-face{position:absolute;inset:0;border-radius:10px;overflow:hidden;backface-visibility:hidden;background:var(--bg-3);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px}
+.gallery-face img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.ph-icon-wrap{width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:var(--accent-dim);border:1px solid rgba(201,169,110,.18);border-radius:10px;flex-shrink:0}
+.ph-icon-wrap svg{width:24px;height:24px;fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ph-title{font-size:11px;font-weight:600;color:var(--text-muted);text-align:center;line-height:1.4}
+.ph-sub{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);text-align:center}
+.ph-badge-top{position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.2);border-radius:4px;padding:3px 7px;z-index:4}
+.gallery-card-3d::after{content:'';position:absolute;bottom:0;left:0;right:0;height:35%;background:linear-gradient(to top,rgba(201,169,110,.05),transparent);border-radius:0 0 10px 10px;pointer-events:none;z-index:2}
+.gallery-label{position:absolute;bottom:0;left:0;right:0;padding:12px 14px;background:linear-gradient(to top,rgba(10,10,10,.9) 60%,transparent);border-radius:0 0 10px 10px;opacity:0;transform:translateY(4px);transition:opacity .3s ease,transform .3s ease;z-index:3}
+.gallery-slot:hover .gallery-label{opacity:1;transform:translateY(0)}
+.gallery-label__text{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+.gallery-hint{margin-top:16px;padding:14px 20px;background:var(--bg-card);border:1px dashed var(--border);border-radius:var(--radius);font-size:12px;color:var(--text-faint);line-height:1.6}
+.gallery-hint strong{color:var(--text-muted)}
+.pdf-dl-btn{display:inline-flex;align-items:center;gap:5px;margin-top:4px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.25);border-radius:4px;padding:5px 14px;text-decoration:none;transition:background var(--t),border-color var(--t);position:relative;z-index:5}
+.pdf-dl-btn:hover{background:rgba(201,169,110,.18);border-color:rgba(201,169,110,.5)}
+
+/* ── Extended Output (Accounting Diagnostic) ─────────────────── */
+.ext-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;position:relative;overflow:hidden}
+.ext-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent)}
+.ext-card__eyebrow{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.ext-card__title{font-size:19px;font-weight:600;color:var(--text);margin-bottom:14px}
+.ext-card__body{font-size:14px;color:var(--text-muted);line-height:1.78;margin-bottom:20px}
+.ext-card__disclaimer{display:flex;gap:10px;font-size:12.5px;color:var(--text-muted);background:var(--bg-3);border:1px solid var(--border-soft);border-left:3px solid var(--accent);border-radius:var(--radius);padding:14px 16px;margin-bottom:24px;line-height:1.65}
+.ext-card__disclaimer-icon{flex-shrink:0;margin-top:1px;opacity:.7}
+.ext-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.ext-tag{font-size:11px;font-weight:600;letter-spacing:.03em;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(201,169,110,.18);border-radius:20px;padding:5px 14px;white-space:nowrap}
+.ext-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.ext-metric{text-align:center;padding:20px 12px;background:var(--bg-3);border:1px solid var(--border-soft);border-radius:var(--radius)}
+.ext-metric__num{font-family:var(--font-display);font-size:28px;font-weight:400;color:var(--accent);line-height:1}
+.ext-metric__label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-top:8px;line-height:1.4}
+.ext-pdf{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--bg-3);border:1px solid var(--border-soft);border-radius:var(--radius)}
+.ext-pdf__icon{width:40px;height:40px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--accent-dim);border:1px solid rgba(201,169,110,.18);border-radius:8px}
+.ext-pdf__icon svg{width:20px;height:20px;fill:none;stroke:var(--accent);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ext-pdf__title{font-size:13px;font-weight:600;color:var(--text)}
+.ext-pdf__sub{font-size:11.5px;color:var(--text-faint);margin-top:2px}
+
+/* ── Lessons ─────────────────────────────────────────────────── */
+.lessons-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.lesson-card{padding:22px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);border-left:3px solid var(--accent)}
+.lesson-card__title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px}
+.lesson-card__text{font-size:12.5px;color:var(--text-muted);line-height:1.65}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:11px 24px;border-radius:var(--radius);transition:all var(--t);cursor:pointer;border:none}
+.btn--ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
+.btn--ghost:hover{border-color:var(--text-faint);color:var(--text)}
+
+/* ── Footer ──────────────────────────────────────────────────── */
+.footer{padding-block:32px;border-top:1px solid var(--border)}
+.footer__inner{display:flex;align-items:center;justify-content:space-between}
+.footer__copy{font-size:12px;color:var(--text-faint)}
+.footer__back{font-size:12px;color:var(--text-faint);transition:color var(--t)}
+.footer__back:hover{color:var(--accent)}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media(max-width:900px){
+  .metrics-strip__grid{grid-template-columns:repeat(3,1fr)}
+  .metric-block:nth-child(3){border-right:none}
+  .metric-block:nth-child(1),.metric-block:nth-child(2),.metric-block:nth-child(3){border-bottom:1px solid var(--border);padding-bottom:20px;margin-bottom:20px}
+  .eval-grid{grid-template-columns:1fr}
+  .arch-grid{grid-template-columns:repeat(2,1fr)}
+  .source-diagram{grid-template-columns:repeat(2,1fr)}
+  .source-node::after{display:none}
+  .gallery-grid{grid-template-columns:repeat(2,1fr)}
+  .lessons-grid{grid-template-columns:1fr}
+  .ext-metrics{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .nav__links{display:none}
+  .nav__links.open{display:flex;flex-direction:column;position:fixed;top:60px;left:0;right:0;background:var(--bg);border-bottom:1px solid var(--border);padding:24px;gap:20px;align-items:flex-start}
+  .nav__toggle{display:flex}
+  .arch-grid{grid-template-columns:1fr}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .project-hero__meta{gap:16px}
+  .ext-metrics{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══════════════════════════════════════════════════════ -->
+<nav class="nav">
+  <div class="container nav__inner">
+    <a href="index.html" class="nav__logo">Mahmoud <span>Hani</span></a>
+    <ul class="nav__links">
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="index.html#projects">Projects</a></li>
+      <li><a href="index.html#experience">Experience</a></li>
+      <li><a href="index.html#skills">Skills</a></li>
+      <li><a href="index.html#resume" class="nav__cta">Resume</a></li>
+    </ul>
+    <button class="nav__toggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════ -->
+<header class="project-hero">
+  <div class="container">
+    <a href="index.html#projects" class="project-hero__back">← Back to Projects</a>
+    <div class="project-hero__tag">Human Resources · Performance Management · Retail · 2026</div>
+    <h1 class="project-hero__title">Performance Management<br>System — PMS</h1>
+    <p class="project-hero__subtitle">
+      Architected and implemented a data-driven Performance Management System (PMS) for a multi-branch retail organization. The project involved transforming an informal, subjective evaluation methodology into a structured, weighted-scoring framework. Successfully deployed across 8 operational branches, the system currently facilitates objective performance tracking, improved decision-making, and standardized HR workflows without requiring additional infrastructure investment.</p>
+    <div class="project-hero__meta">
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">Client Context</span>
+        <span class="project-hero__meta-value">Egyptian Retail Chain — Confidential</span>
+      </div>
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">Sector</span>
+        <span class="project-hero__meta-value">Retail — Food &amp; Confectionery</span>
+      </div>
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">My Role</span>
+        <span class="project-hero__meta-value">HR Designer &amp; System Architect</span>
+      </div>
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">Status</span>
+        <span class="project-hero__meta-value">Implemented — Active Use</span>
+      </div>
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">Version</span>
+        <span class="project-hero__meta-value">1.0 — 2026</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ METRICS ═══════════════════════════════════════════════════ -->
+<div class="metrics-strip">
+  <div class="container">
+    <div class="metrics-strip__grid">
+      <div class="metric-block">
+        <div class="metric-block__num">4</div>
+        <div class="metric-block__label">Job Roles<br>Covered</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-block__num">8</div>
+        <div class="metric-block__label">Google Forms<br>Live in Production</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-block__num">3+</div>
+        <div class="metric-block__label">Independent<br>Data Sources</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-block__num">1–5</div>
+        <div class="metric-block__label">KPI Rating<br>Scale</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-block__num">100</div>
+        <div class="metric-block__label">Weighted Score<br>per Employee / Month</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTENT ═══════════════════════════════════════════════════ -->
+<div class="project-content">
+  <div class="container">
+
+    <!-- 01 Overview -->
+    <div class="project-section" id="overview">
+      <div class="project-section__header">
+        <span class="project-section__num">01</span>
+        <h2 class="project-section__title">Project Overview</h2>
+      </div>
+      <div class="project-section__body">
+        <p>The organization is an Egyptian retail confectionery chain operating 8 branches with 50–70 employees. Prior to this project, performance evaluation existed in name only — managers assessed staff informally, without defined KPIs, without consistent criteria across branches, and without any data trail that could support objective decisions on compensation, promotion, or development.</p>
+        <p>I identified this gap during my part-time HR role at the company, proposed a structured solution, secured management buy-in, and designed and deployed the entire system independently. The requirement was clear: the system had to be operational immediately, without any new software, training overhead, or dedicated HR staffing. It had to run on the tools already available — paper, Google Forms, and Excel.</p>
+        <p>What was delivered is a complete, multi-source performance evaluation framework covering four job roles across the organizational hierarchy. Every component — evaluation forms, digital input channels, a scoring engine, and monthly notification templates — is fully built and currently in active use across all branches.</p>
+        <div class="status-row">
+          <span class="status-badge status-badge--done"><span class="status-badge__dot"></span>4 Role-Specific Evaluation Forms — Deployed</span>
+          <span class="status-badge status-badge--done"><span class="status-badge__dot"></span>8 Google Forms — Live</span>
+          <span class="status-badge status-badge--done"><span class="status-badge__dot"></span>4 Notification Templates — In Use</span>
+          <span class="status-badge status-badge--done"><span class="status-badge__dot"></span>Excel Scoring Engine — Operational</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 Problem -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">02</span>
+        <h2 class="project-section__title">Problem Statement</h2>
+      </div>
+      <div class="project-section__body">
+        <p>Performance evaluation was entirely informal and inconsistent. There were no role-defined KPIs, no standardized scoring process, and no structured data collection — which meant a cashier in one branch could be evaluated on entirely different criteria than a cashier in another, entirely at the discretion of whichever manager happened to be on shift that day.</p>
+        <p>This produced three documented organizational problems: compensation decisions with no objective basis, an inability to identify performance risks or development needs before they escalated, and no historical record of employee performance over time. Decisions were made on gut feeling, and there was no mechanism to challenge or audit them.</p>
+        <p>Compounding the issue, the organization had no HR infrastructure — no software, no dedicated HR staff, and no existing templates. Any solution had to be deployable on day one using existing resources.</p>
+      </div>
+    </div>
+
+    <!-- 03 Objective -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">03</span>
+        <h2 class="project-section__title">Design Objective</h2>
+      </div>
+      <div class="project-section__body">
+        <p>Design and implement a complete Performance Management System that converts subjective impressions into structured, role-specific, weighted scores — producing a defensible, consistent output of 100 points per employee per month, regardless of which manager conducts the evaluation or which branch is being assessed.</p>
+        <p>The system must reduce single-evaluator bias through multi-source data collection, generate actionable output directly usable for compensation and development decisions, and be fully operational without any additional technology investment — while being architecturally structured to migrate to a digital platform without redesigning its core logic.</p>
+      </div>
+    </div>
+
+    <!-- 04 Architecture -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">04</span>
+        <h2 class="project-section__title">System Architecture</h2>
+      </div>
+      <div class="project-section__body" style="margin-bottom:24px">
+        <p>The system is structured across three independent, modular layers — collection, scoring, and reporting. The key architectural decision: each layer can be upgraded or replaced without touching the others. Paper forms become digital forms. The Excel engine becomes a database. The reports become a dashboard. The evaluation logic remains constant throughout.</p>
+      </div>
+      <div class="arch-grid">
+        <div class="arch-card">
+          <div class="arch-card__icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+          <div class="arch-card__title">Paper Evaluation Forms</div>
+          <div class="arch-card__text">4 role-specific forms — Branches Manager, Branch Manager, Salesperson, Cashier — each with weighted KPI categories, named data sources, and a 1–5 scale that resolves to a score out of 100.</div>
+          <span class="arch-card__tag">Layer 1 — Collection</span>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card__icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+          <div class="arch-card__title">Google Forms — Digital Input</div>
+          <div class="arch-card__text">8 live forms: 4 evaluation submission forms and 4 end-of-month notification templates. Eliminates manual transcription errors and feeds responses directly into the scoring engine.</div>
+          <span class="arch-card__tag">Layer 1 — Collection</span>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card__icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg></div>
+          <div class="arch-card__title">Excel Scoring Engine</div>
+          <div class="arch-card__text">Aggregates multi-source inputs, applies role-specific weights, calculates a final score out of 100, and generates monthly performance summaries per employee and per branch — operational with zero additional software.</div>
+          <span class="arch-card__tag">Layer 2 — Scoring</span>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card__icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <div class="arch-card__title">Monthly Performance Reports</div>
+          <div class="arch-card__text">Structured output per employee: total score, category breakdown, trend vs. prior month, and a narrative field for manager annotations — formatted for direct use in compensation and development decisions.</div>
+          <span class="arch-card__tag">Layer 3 — Reporting</span>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card__icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="arch-card__title">Multi-Source Evaluation</div>
+          <div class="arch-card__text">Data drawn from at least three independent sources per employee: direct manager observation, peer review, customer feedback, and operational system data (POS, Attendance, Cash Reports). No single evaluator controls the outcome.</div>
+          <span class="arch-card__tag">Core Design Principle</span>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card__icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="arch-card__title">Monthly Evaluation Cycle</div>
+          <div class="arch-card__text">Notification dispatched end-of-month → forms completed within 3 days → engine populated → scores calculated → reports issued to management → decisions made. Full cycle designed to close within one week.</div>
+          <span class="arch-card__tag">Operations</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 Multi-Source -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">05</span>
+        <h2 class="project-section__title">Multi-Source Evaluation Design</h2>
+      </div>
+      <div class="project-section__body" style="margin-bottom:24px">
+        <p>The foundational design principle: no single evaluator controls the final score. Each employee's result is built from independent data streams, weighted by role relevance. This shifts performance conversations from subjective disagreement to structured dialogue around data — and makes the system auditable and defensible at every level of the hierarchy.</p>
+      </div>
+      <div class="source-diagram">
+        <div class="source-node">
+          <span class="source-node__icon">👤</span>
+          <div class="source-node__title">Direct Manager</div>
+          <div class="source-node__sub">Behavioral observation, task quality, SOP compliance</div>
+        </div>
+        <div class="source-node">
+          <span class="source-node__icon">👥</span>
+          <div class="source-node__title">Peers / Colleagues</div>
+          <div class="source-node__sub">Teamwork, cooperation, attitude under pressure</div>
+        </div>
+        <div class="source-node">
+          <span class="source-node__icon">🛒</span>
+          <div class="source-node__title">Customer Feedback</div>
+          <div class="source-node__sub">Service quality, response time, satisfaction score</div>
+        </div>
+        <div class="source-node">
+          <span class="source-node__icon">📊</span>
+          <div class="source-node__title">Operational Systems</div>
+          <div class="source-node__sub">POS data · Attendance records · Cash Reports</div>
+        </div>
+        <div class="source-result">
+          <span class="source-result__label">Output</span>
+          <span class="source-result__text">All sources aggregated by role-specific weights → a single, reproducible score out of 100 per employee per month, independent of any individual manager's judgment</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 Evaluation Forms -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">06</span>
+        <h2 class="project-section__title">The 4 Evaluation Forms</h2>
+      </div>
+      <div class="project-section__body" style="margin-bottom:24px">
+        <p>Each form is built around the actual accountability scope of that role — what it produces, what data is available to measure it, and what genuinely matters for organizational performance at that level. A cashier's financial accuracy carries 40% because cash discrepancies are traceable and directly costly. A branch manager's team development rate carries weight because it predicts branch performance months in advance. The weights are not arbitrary — they reflect operational priority.</p>
+      </div>
+
+      <div class="eval-grid">
+
+        <!-- CASHIER -->
+        <div class="eval-card">
+          <div class="eval-card__header">
+            <div>
+              <div class="eval-card__role-tag">Front-Line Operations</div>
+              <div class="eval-card__title">Cashier</div>
+            </div>
+            <div class="eval-card__badge">V1.0 · 2026</div>
+          </div>
+          <div class="eval-card__body">
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Financial Accuracy</span><span class="kpi-category__weight">40%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Calculation Accuracy</span><span class="kpi-row__source">POS</span><span class="kpi-row__w">20%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Cash Closing Difference</span><span class="kpi-row__source">Cash Report</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Financial Procedure Compliance</span><span class="kpi-row__source">Observation</span><span class="kpi-row__w">10%</span></div>
+              </div>
+            </div>
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Efficiency &amp; Effectiveness</span><span class="kpi-category__weight">40%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Transaction Speed</span><span class="kpi-row__source">POS + Obs.</span><span class="kpi-row__w">15%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Queue Wait Time</span><span class="kpi-row__source">Observation</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Customer Handling Quality</span><span class="kpi-row__source">Observation</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Customer Satisfaction</span><span class="kpi-row__source">Feedback Form</span><span class="kpi-row__w">5%</span></div>
+              </div>
+            </div>
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Commitment &amp; Conduct</span><span class="kpi-category__weight">20%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Attendance &amp; Punctuality</span><span class="kpi-row__source">Attendance</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">SOP Compliance</span><span class="kpi-row__source">Observation</span><span class="kpi-row__w">10%</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="eval-card__footer">
+            <div class="weight-bar" style="width:40%;background:#C9A96E;opacity:.7"></div>
+            <div class="weight-bar" style="width:40%;background:#C9A96E;opacity:.45"></div>
+            <div class="weight-bar" style="width:20%;background:#C9A96E;opacity:.25"></div>
+          </div>
+        </div>
+
+        <!-- SALESPERSON -->
+        <div class="eval-card">
+          <div class="eval-card__header">
+            <div>
+              <div class="eval-card__role-tag">Front-Line Operations</div>
+              <div class="eval-card__title">Salesperson</div>
+            </div>
+            <div class="eval-card__badge">V1.0 · 2026</div>
+          </div>
+          <div class="eval-card__body">
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Individual Performance</span><span class="kpi-category__weight">30%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Attendance &amp; Punctuality</span><span class="kpi-row__source">Attendance</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Customer Handling Quality</span><span class="kpi-row__source">Complaints + Obs.</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Instruction Compliance (SOP)</span><span class="kpi-row__source">Manager Obs.</span><span class="kpi-row__w">5%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Customer Satisfaction</span><span class="kpi-row__source">Feedback Form</span><span class="kpi-row__w">5%</span></div>
+              </div>
+            </div>
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Operational Performance</span><span class="kpi-category__weight">40%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Shift Sales vs. Target</span><span class="kpi-row__source">POS</span><span class="kpi-row__w">20%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Service Speed</span><span class="kpi-row__source">Observation</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Error &amp; Complaint Rate</span><span class="kpi-row__source">Complaints Log</span><span class="kpi-row__w">10%</span></div>
+              </div>
+            </div>
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Teamwork &amp; Cooperation</span><span class="kpi-category__weight">30%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Team Cooperation</span><span class="kpi-row__source">Observation</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Performance Under Pressure</span><span class="kpi-row__source">Observation</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Peer Evaluation Score</span><span class="kpi-row__source">Monthly Forms</span><span class="kpi-row__w">10%</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="eval-card__footer">
+            <div class="weight-bar" style="width:30%;background:#C9A96E;opacity:.7"></div>
+            <div class="weight-bar" style="width:40%;background:#C9A96E;opacity:.45"></div>
+            <div class="weight-bar" style="width:30%;background:#C9A96E;opacity:.25"></div>
+          </div>
+        </div>
+
+        <!-- BRANCH MANAGER -->
+        <div class="eval-card">
+          <div class="eval-card__header">
+            <div>
+              <div class="eval-card__role-tag">Branch Management</div>
+              <div class="eval-card__title">Branch Manager</div>
+            </div>
+            <div class="eval-card__badge">V1.0 · 2026</div>
+          </div>
+          <div class="eval-card__body">
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Operational Performance</span><span class="kpi-category__weight">40%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Branch Target Achievement</span><span class="kpi-row__source">POS</span><span class="kpi-row__w">20%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Waste &amp; Inventory Control</span><span class="kpi-row__source">Inventory Reports</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Customer Satisfaction</span><span class="kpi-row__source">Customer Forms</span><span class="kpi-row__w">10%</span></div>
+              </div>
+            </div>
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Team Management</span><span class="kpi-category__weight">30%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Team Evaluation Average</span><span class="kpi-row__source">Monthly Forms</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Problem Resolution Speed</span><span class="kpi-row__source">Observation</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Team Discipline Index</span><span class="kpi-row__source">Attendance</span><span class="kpi-row__w">5%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Team Performance Growth</span><span class="kpi-row__source">Performance Δ</span><span class="kpi-row__w">5%</span></div>
+              </div>
+            </div>
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Cooperation &amp; Culture</span><span class="kpi-category__weight">20%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Team Support Under Pressure</span><span class="kpi-row__source">Observation</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Knowledge Transfer</span><span class="kpi-row__source">Observation</span><span class="kpi-row__w">5%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Work Environment Quality</span><span class="kpi-row__source">Observation</span><span class="kpi-row__w">5%</span></div>
+              </div>
+            </div>
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Senior Management Rating</span><span class="kpi-category__weight">10%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Overall Leadership Assessment</span><span class="kpi-row__source">Direct Input</span><span class="kpi-row__w">10%</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="eval-card__footer">
+            <div class="weight-bar" style="width:40%;background:#C9A96E;opacity:.7"></div>
+            <div class="weight-bar" style="width:30%;background:#C9A96E;opacity:.5"></div>
+            <div class="weight-bar" style="width:20%;background:#C9A96E;opacity:.3"></div>
+            <div class="weight-bar" style="width:10%;background:#C9A96E;opacity:.15"></div>
+          </div>
+        </div>
+
+        <!-- BRANCHES MANAGER -->
+        <div class="eval-card">
+          <div class="eval-card__header">
+            <div>
+              <div class="eval-card__role-tag">Senior Leadership</div>
+              <div class="eval-card__title">Branches Manager</div>
+            </div>
+            <div class="eval-card__badge">V1.0 · 2026</div>
+          </div>
+          <div class="eval-card__body">
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Network Performance</span><span class="kpi-category__weight">50%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Total Target Achievement</span><span class="kpi-row__source">POS</span><span class="kpi-row__w">25%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Weighted Branch Average</span><span class="kpi-row__source">Monthly Reports</span><span class="kpi-row__w">15%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Performance Stability Index</span><span class="kpi-row__source">Performance Reports</span><span class="kpi-row__w">10%</span></div>
+              </div>
+            </div>
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Managing Branch Managers</span><span class="kpi-category__weight">30%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Branch Manager Evaluation Avg.</span><span class="kpi-row__source">Monthly Forms</span><span class="kpi-row__w">15%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Manager Development Rate</span><span class="kpi-row__source">Performance Δ</span><span class="kpi-row__w">10%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Issue Resolution &amp; Follow-up</span><span class="kpi-row__source">Branch Notes</span><span class="kpi-row__w">5%</span></div>
+              </div>
+            </div>
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Governance &amp; Compliance</span><span class="kpi-category__weight">10%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Branch Visit Schedule Adherence</span><span class="kpi-row__source">Visit Reports</span><span class="kpi-row__w">5%</span></div>
+                <div class="kpi-row"><span class="kpi-row__name">Policy Implementation Rate</span><span class="kpi-row__source">Flow Reports</span><span class="kpi-row__w">5%</span></div>
+              </div>
+            </div>
+            <div class="kpi-category">
+              <div class="kpi-category__header"><span class="kpi-category__name">Executive Assessment</span><span class="kpi-category__weight">10%</span></div>
+              <div class="kpi-list">
+                <div class="kpi-row"><span class="kpi-row__name">Overall Leadership Evaluation</span><span class="kpi-row__source">Direct Input</span><span class="kpi-row__w">10%</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="eval-card__footer">
+            <div class="weight-bar" style="width:50%;background:#C9A96E;opacity:.7"></div>
+            <div class="weight-bar" style="width:30%;background:#C9A96E;opacity:.45"></div>
+            <div class="weight-bar" style="width:10%;background:#C9A96E;opacity:.28"></div>
+            <div class="weight-bar" style="width:10%;background:#C9A96E;opacity:.14"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 07 Deliverables -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">07</span>
+        <h2 class="project-section__title">Deliverables</h2>
+      </div>
+      <div class="gallery-grid">
+
+       <!-- FORM 1: Cashier -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card-3d">
+    <div class="gallery-face" style="gap:10px">
+      <div class="ph-badge-top">PDF</div>
+      <div class="ph-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <div class="ph-title">Cashier<br>Evaluation Form</div>
+      <div class="ph-sub">نموذج تقييم الكاشير</div>
+      <a href="../assets/Documents/PMS_Cashier.pdf" target="_blank" class="pdf-dl-btn">↓ View PDF</a>
+    </div>
+    <div class="gallery-label"><div class="gallery-label__text">Cashier Form — V1.0</div></div>
+  </div>
+</div>
+
+<!-- FORM 2: Salesperson -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card-3d">
+    <div class="gallery-face" style="gap:10px">
+      <div class="ph-badge-top">PDF</div>
+      <div class="ph-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <div class="ph-title">Salesperson<br>Evaluation Form</div>
+      <div class="ph-sub">نموذج تقييم البائع</div>
+      <a href="../assets/Documents/PMS_Seals.pdf" target="_blank" class="pdf-dl-btn">↓ View PDF</a>
+    </div>
+    <div class="gallery-label"><div class="gallery-label__text">Salesperson Form — V1.0</div></div>
+  </div>
+</div>
+
+<!-- FORM 3: Branch Manager -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card-3d">
+    <div class="gallery-face" style="gap:10px">
+      <div class="ph-badge-top">PDF</div>
+      <div class="ph-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <div class="ph-title">Branch Manager<br>Evaluation Form</div>
+      <div class="ph-sub">نموذج تقييم مدير الفرع</div>
+      <a href="../assets/Documents/PMS_Branch_Manager.pdf" target="_blank" class="pdf-dl-btn">↓ View PDF</a>
+    </div>
+    <div class="gallery-label"><div class="gallery-label__text">Branch Manager Form — V1.0</div></div>
+  </div>
+</div>
+
+<!-- FORM 4: Branches Manager -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card-3d">
+    <div class="gallery-face" style="gap:10px">
+      <div class="ph-badge-top">PDF</div>
+      <div class="ph-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <div class="ph-title">Branches Manager<br>Evaluation Form</div>
+      <div class="ph-sub">نموذج تقييم مدير الفروع</div>
+      <a href="../assets/Documents/PSM_Branchs_Manager.pdf" target="_blank" class="pdf-dl-btn">↓ View PDF</a>
+    </div>
+    <div class="gallery-label"><div class="gallery-label__text">Branches Manager Form — V1.0</div></div>
+  </div>
+</div>
+
+       <!-- Google Forms -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card-3d">
+    <div class="gallery-face" style="gap:10px">
+      <div class="ph-badge-top">PDF Guide</div>
+      <div class="ph-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      </div>
+      <div class="ph-title">Google Forms<br>Evaluation Input</div>
+      <div class="ph-sub">8 forms — active production</div>
+      <a href="../assets/Documents/PMS-Google-Forms.pdf" target="_blank" class="pdf-dl-btn">↗ View Form</a>
+    </div>
+    <div class="gallery-label"><div class="gallery-label__text">Google Forms — 8 Live</div></div>
+  </div>
+</div>
+
+<!-- Notification Template: Branches Manager -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card-3d">
+    <div class="gallery-face" style="gap:10px">
+      <div class="ph-badge-top">Active</div>
+      <div class="ph-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="ph-title">Notification Template<br>Branches Manager</div>
+      <div class="ph-sub">إشعار شهري — مدير الفروع</div>
+      <a href="../assets/Documents/PRM-Branchs-Manager.pdf" target="_blank" class="pdf-dl-btn">↓ View PDF</a>
+    </div>
+    <div class="gallery-label"><div class="gallery-label__text">Branches Manager Notification</div></div>
+  </div>
+</div>
+
+<!-- Notification Template: Branch Manager -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card-3d">
+    <div class="gallery-face" style="gap:10px">
+      <div class="ph-badge-top">Active</div>
+      <div class="ph-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="ph-title">Notification Template<br>Branch Manager</div>
+      <div class="ph-sub">إشعار شهري — مدير الفرع</div>
+      <a href="../assets/Documents/PRM-Brach-Manager.pdf" target="_blank" class="pdf-dl-btn">↓ View PDF</a>
+    </div>
+    <div class="gallery-label"><div class="gallery-label__text">Branch Manager Notification</div></div>
+  </div>
+</div>
+
+<!-- Analytics Dashboard PDF Guide -->
+<div class="gallery-slot" data-tilt>
+  <div class="gallery-card-3d">
+    <div class="gallery-face" style="gap:10px">
+      <div class="ph-badge-top">PDF Guide</div>
+      <div class="ph-icon-wrap">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <div class="ph-title">Analytics Dashboard<br>Visual Guide</div>
+      <div class="ph-sub">KPI cards · Branch reports · Top performers</div>
+      <a href="../assets/Documents/PMS-Performance_Dashboard_Guide.pdf" target="_blank" class="pdf-dl-btn">↓ View PDF</a>
+    </div>
+    <div class="gallery-label"><div class="gallery-label__text">Dashboard Guide — PDF</div></div>
+  </div>
+</div>
+
+      </div>
+    </div>
+
+    <!-- 08 Extended Output -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">08</span>
+        <h2 class="project-section__title">Extended Output — Accounting Diagnostic Report</h2>
+      </div>
+      <div class="ext-card">
+        <div class="ext-card__eyebrow">Additional Deliverable · July 2026</div>
+        <div class="ext-card__title">Accounting Department Restructuring — Internal Scoping Report</div>
+        <div class="ext-card__body">
+          In parallel with the PMS engagement, I identified a structural gap in the accounting department that was directly limiting the quality of operational data available for HR reporting. I produced an internal diagnostic scoping report to give management a structured foundation for decision-making — covering the current organizational state, gap analysis, a proposed restructured org chart, job descriptions with KPIs for each accounting role, an authority and responsibility matrix, financial workflow redesign, internal control recommendations, and a prioritized 90-day implementation roadmap. The KPI framework in this report was designed to align directly with the PMS methodology already in place, creating a connected data layer across HR and Finance.
+        </div>
+        <div class="ext-card__disclaimer">
+          <span class="ext-card__disclaimer-icon">ℹ️</span>
+          <span>This is an internal scoping diagnostic produced to support the client's strategic decision-making — not a professional financial audit or formal accounting advisory engagement. It is presented as evidence of applied analytical and organizational design capability, with all company-identifying information removed from the published version.</span>
+        </div>
+        <div class="ext-tags">
+          <span class="ext-tag">Organizational Design</span>
+          <span class="ext-tag">Job Descriptions &amp; KPIs</span>
+          <span class="ext-tag">Authority Matrix</span>
+          <span class="ext-tag">Financial Workflow Redesign</span>
+          <span class="ext-tag">Internal Controls</span>
+          <span class="ext-tag">Risk Assessment</span>
+          <span class="ext-tag">90-Day Implementation Roadmap</span>
+        </div>
+        <div class="ext-metrics">
+          <div class="ext-metric">
+            <div class="ext-metric__num">8</div>
+            <div class="ext-metric__label">Branches<br>in Scope</div>
+          </div>
+          <div class="ext-metric">
+            <div class="ext-metric__num">4</div>
+            <div class="ext-metric__label">Accounting Roles<br>Redesigned</div>
+          </div>
+          <div class="ext-metric">
+            <div class="ext-metric__num">90</div>
+            <div class="ext-metric__label">Day Roadmap<br>Proposed</div>
+          </div>
+        </div>
+        <div class="ext-pdf">
+          <div class="ext-pdf__icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <div>
+            <!--
+              When ready: replace below with:
+              <a href="assets/accounting-diagnostic-redacted.pdf" download style="font-size:13px;font-weight:600;color:var(--accent)">↓ Download Report (Redacted)</a>
+            -->
+            <a href="../assets/Documents/PMS-Accouting-Department-Structure.pdf" download style="text-decoration: none; color: inherit;">
+    <div class="ext-pdf__title">Accounting Restructuring Diagnostic - Redacted PDF</div>
+    <div class="ext-pdf__sub">↓ Click to download the report</div>
+</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 09 Lessons -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">09</span>
+        <h2 class="project-section__title">Lessons Learned</h2>
+      </div>
+      <div class="lessons-grid">
+        <div class="lesson-card">
+          <div class="lesson-card__title">Data source design is the actual work</div>
+          <div class="lesson-card__text">Naming a KPI takes minutes. Determining exactly where the data comes from, who is accountable for recording it, and at what frequency — that's what determines whether the system works in practice. Every indicator in this system has a named, available data source, or it doesn't exist in the design.</div>
+        </div>
+        <div class="lesson-card">
+          <div class="lesson-card__title">Weights make priorities explicit and testable</div>
+          <div class="lesson-card__text">Assigning percentage weights converts implicit organizational priorities into a verifiable statement. Financial accuracy is 40% of a cashier's score because cash discrepancies are traceable and costly. Teamwork is 30% of a salesperson's score because the floor environment is inherently collaborative. The numbers don't allow vagueness.</div>
+        </div>
+        <div class="lesson-card">
+          <div class="lesson-card__title">Designing on paper forces clarity before technology</div>
+          <div class="lesson-card__text">Every process decision in this system was made at the paper stage — before anything digital was touched. The Excel engine was straightforward to build because the evaluation logic was already fully defined. Technology should implement a clear process, not substitute for one that hasn't been thought through.</div>
+        </div>
+        <div class="lesson-card">
+          <div class="lesson-card__title">Multi-source makes the system defensible</div>
+          <div class="lesson-card__text">When a score is produced by four independent data streams, performance conversations shift from subjective disagreement to structured dialogue around data. A manager's personal view becomes one input among several — not the final word. That shift is what gives the system organizational legitimacy.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<section style="background:var(--bg-2);border-top:1px solid var(--border);padding-block:64px">
+  <div class="container">
+    <div class="section-label" style="margin-bottom:24px">Other Projects</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <a href="coda.html" class="btn btn--ghost">CODA →</a>
+      <a href="ecoloop.html" class="btn btn--ghost">EcoLoop →</a>
+      <a href="edugrip.html" class="btn btn--ghost">EDUGRIP →</a>
+      <a href="index.html" class="btn btn--ghost">← Back to Portfolio</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <div class="footer__copy">© 2026 Mahmoud Hani Mahmoud</div>
+    <a href="index.html" class="footer__back">← Portfolio Home</a>
+  </div>
+</footer>
+
+<script>
+/* ── Nav toggle ────────────────────────────────────────────── */
+const toggle = document.querySelector('.nav__toggle');
+const links  = document.querySelector('.nav__links');
+if (toggle && links) {
+  toggle.addEventListener('click', () => links.classList.toggle('open'));
+  links.querySelectorAll('a').forEach(a =>
+    a.addEventListener('click', () => links.classList.remove('open'))
+  );
+}
+
+/* ── 3D magnetic tilt ──────────────────────────────────────── */
+const TILT_MAX = 13, TILT_SCALE = 1.04, LIFT = -5;
+
+function applyTilt(card, rx, ry) {
+  card.style.transform =
+    `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(${LIFT}px) scale(${TILT_SCALE})`;
+}
+function resetTilt(card) {
+  card.style.transition = 'transform .6s cubic-bezier(.23,1,.32,1), box-shadow .6s ease';
+  card.style.transform  = 'perspective(900px) rotateX(0) rotateY(0) translateZ(0) scale(1)';
+}
+
+document.querySelectorAll('.gallery-slot[data-tilt]').forEach(slot => {
+  const card = slot.querySelector('.gallery-card-3d');
+  slot.addEventListener('mousemove', e => {
+    const r  = slot.getBoundingClientRect();
+    const xP = (e.clientX - r.left) / r.width  - .5;
+    const yP = (e.clientY - r.top)  / r.height - .5;
+    card.style.transition = 'transform .08s linear, box-shadow .08s linear';
+    applyTilt(card, -yP * TILT_MAX * 2, xP * TILT_MAX * 2);
+  });
+  slot.addEventListener('mouseleave', () => resetTilt(card));
+  slot.addEventListener('touchstart', e => {
+    const t = e.touches[0], r = slot.getBoundingClientRect();
+    card.style.transition = 'transform .15s ease';
+    applyTilt(card,
+      -((t.clientY - r.top)  / r.height - .5) * TILT_MAX,
+       ((t.clientX - r.left) / r.width  - .5) * TILT_MAX
+    );
+    setTimeout(() => resetTilt(card), 600);
+  }, { passive: true });
+});
+
+/* ── Scroll fade-in ────────────────────────────────────────── */

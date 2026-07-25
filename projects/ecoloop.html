@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>EcoLoop — Smart Recycling Platform | Mahmoud Abdo-Raboh</title>
+  <meta name="description" content="EcoLoop: a fully documented smart recycling startup concept for Egyptian residential communities — product design stage, seeking first pilot partner."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0A0A0A;--bg-2:#111111;--bg-3:#181818;--bg-card:#141414;
+  --border:#222222;--border-soft:#1C1C1C;
+  --text:#F0EDE8;--text-muted:#888888;--text-faint:#444444;
+  --accent:#4ADE80;--accent-dim:rgba(74,222,128,.12);--accent-glow:rgba(74,222,128,.06);
+  --accent-2:#6EA8C9;--accent-2-dim:rgba(110,168,201,.12);
+  --gold:#C9A96E;--gold-dim:rgba(201,169,110,.12);
+  --font-display:'Playfair Display',Georgia,serif;
+  --font-body:'Inter',-apple-system,sans-serif;
+  --radius:6px;--radius-lg:12px;--max-w:1080px;--t:200ms ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.7}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+.container{max-width:var(--max-w);margin-inline:auto;padding-inline:24px}
+.divider{height:1px;background:var(--border)}
+.section-label{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.section-title{font-family:var(--font-display);font-size:clamp(26px,3.5vw,34px);font-weight:400;color:var(--text);line-height:1.2;margin-bottom:16px}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav__inner{display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav__logo{font-size:14px;font-weight:600;letter-spacing:.04em}
+.nav__logo span{color:var(--gold)}
+.nav__links{display:flex;align-items:center;gap:28px}
+.nav__links a{font-size:13px;font-weight:500;color:var(--text-muted);transition:color var(--t)}
+.nav__links a:hover{color:var(--text)}
+.nav__cta{font-size:12px!important;font-weight:600!important;letter-spacing:.06em!important;text-transform:uppercase;color:var(--gold)!important;border:1px solid rgba(201,169,110,.35);padding:6px 16px;border-radius:var(--radius)}
+.nav__toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
+.nav__toggle span{display:block;width:22px;height:1.5px;background:var(--text-muted)}
+
+/* HERO */
+.project-hero{padding-top:120px;padding-bottom:72px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.project-hero::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(74,222,128,.04) 0%,transparent 70%);pointer-events:none}
+.project-hero__back{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:36px;transition:color var(--t)}
+.project-hero__back:hover{color:var(--accent)}
+.project-hero__tag{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.project-hero__title{font-family:var(--font-display);font-size:clamp(32px,5vw,54px);font-weight:400;color:var(--text);margin-bottom:20px;line-height:1.08}
+.project-hero__subtitle{font-size:16px;color:var(--text-muted);max-width:620px;line-height:1.78;margin-bottom:36px}
+.project-hero__meta{display:flex;gap:32px;flex-wrap:wrap;margin-bottom:28px}
+.project-hero__meta-item{display:flex;flex-direction:column;gap:4px}
+.project-hero__meta-label{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint)}
+.project-hero__meta-value{font-size:13.5px;font-weight:500;color:var(--text)}
+.hero-status{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:20px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.hero-status__dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.hero-founder{margin-top:20px;font-size:12.5px;color:var(--text-faint);font-style:italic}
+.hero-founder span{color:var(--text-muted);font-style:normal;font-weight:500}
+
+/* METRICS */
+.metrics-strip{background:var(--bg-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding-block:40px}
+.metrics-strip__grid{display:grid;grid-template-columns:repeat(5,1fr)}
+.metric-block{padding:0 24px;border-right:1px solid var(--border)}
+.metric-block:first-child{padding-left:0}
+.metric-block:last-child{border-right:none}
+.metric-block__num{font-family:var(--font-display);font-size:30px;font-weight:400;color:var(--accent);line-height:1;margin-bottom:8px}
+.metric-block__label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);line-height:1.4}
+
+/* SECTIONS */
+.project-content{padding-block:80px}
+.project-section{margin-bottom:72px}
+.project-section:last-child{margin-bottom:0}
+.project-section__header{display:flex;align-items:baseline;gap:16px;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--border-soft)}
+.project-section__num{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--accent);flex-shrink:0}
+.project-section__title{font-size:20px;font-weight:600;color:var(--text)}
+.project-section__body{color:var(--text-muted);font-size:15px;line-height:1.78}
+.project-section__body p{margin-bottom:14px}
+.project-section__body p:last-child{margin-bottom:0}
+
+/* PROBLEM STATS */
+.problem-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px}
+.problem-stat{padding:22px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);border-top:2px solid var(--accent)}
+.problem-stat__num{font-family:var(--font-display);font-size:28px;color:var(--accent);line-height:1;margin-bottom:8px}
+.problem-stat__label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);line-height:1.4}
+
+/* SOLUTION FLOW */
+.solution-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+.flow-card{padding:22px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);position:relative;transition:border-color var(--t),transform var(--t)}
+.flow-card:hover{border-color:rgba(74,222,128,.3);transform:translateY(-2px)}
+.flow-card__num{font-family:var(--font-display);font-size:32px;color:var(--accent);opacity:.2;line-height:1;margin-bottom:12px}
+.flow-card__title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
+.flow-card__text{font-size:12px;color:var(--text-muted);line-height:1.65}
+.flow-card__tag{display:inline-block;margin-top:10px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(74,222,128,.2);border-radius:4px;padding:2px 8px}
+
+/* PRODUCT GALLERY */
+.product-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.product-card{border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);background:var(--bg-card);transition:border-color var(--t),transform var(--t);cursor:pointer;position:relative}
+.product-card:hover{border-color:rgba(74,222,128,.3);transform:translateY(-3px)}
+.product-card img{width:100%;height:280px;object-fit:cover;display:block;transition:transform .4s ease}
+.product-card:hover img{transform:scale(1.02)}
+.product-card__overlay{position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(to top,rgba(10,10,10,.95) 60%,transparent);opacity:0;transform:translateY(6px);transition:opacity .3s ease,transform .3s ease}
+.product-card:hover .product-card__overlay{opacity:1;transform:translateY(0)}
+.product-card__label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.product-card__title{font-size:14px;font-weight:600;color:var(--text)}
+
+/* BMC */
+.bmc-wrap{border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);position:relative}
+.bmc-wrap img{width:100%;display:block}
+.bmc-note{margin-top:12px;padding:12px 16px;background:var(--bg-card);border:1px solid var(--border-soft);border-radius:var(--radius);font-size:12px;color:var(--text-faint);display:flex;align-items:center;gap:8px}
+
+/* COMPETITIVE TABLE */
+.comp-table{width:100%;border-collapse:collapse;margin-top:8px}
+.comp-table th{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);padding:10px 14px;border-bottom:1px solid var(--border);text-align:left;background:var(--bg-card)}
+.comp-table td{font-size:12.5px;color:var(--text-muted);padding:12px 14px;border-bottom:1px solid var(--border-soft);vertical-align:top;line-height:1.5}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table tr:nth-child(even) td{background:rgba(255,255,255,.01)}
+.comp-table .highlight td{background:rgba(74,222,128,.04)!important}
+.comp-table .highlight td:first-child{color:var(--accent);font-weight:600}
+.gap-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:4px}
+.gap-badge--miss{color:#FF6B6B;background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.2)}
+.gap-badge--win{color:var(--accent);background:var(--accent-dim);border:1px solid rgba(74,222,128,.2)}
+
+/* DOCUMENTS */
+.docs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.doc-card{display:flex;align-items:center;gap:16px;padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);transition:border-color var(--t),transform var(--t)}
+.doc-card:hover{border-color:rgba(74,222,128,.3);transform:translateY(-2px)}
+.doc-card__icon{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--accent-dim);border:1px solid rgba(74,222,128,.2);border-radius:10px}
+.doc-card__icon svg{width:22px;height:22px;fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.doc-card__title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.doc-card__sub{font-size:11px;color:var(--text-faint)}
+.doc-card__link{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(74,222,128,.25);border-radius:4px;padding:4px 12px;transition:background var(--t)}
+.doc-card__link:hover{background:rgba(74,222,128,.2)}
+
+/* LESSONS */
+.lessons-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.lesson-card{padding:22px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);border-left:3px solid var(--accent)}
+.lesson-card__title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px}
+.lesson-card__text{font-size:12.5px;color:var(--text-muted);line-height:1.65}
+
+/* VISION CARD */
+.vision-card{padding:36px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);position:relative;overflow:hidden}
+.vision-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent-2),transparent)}
+.vision-card__quote{font-family:var(--font-display);font-size:20px;color:var(--text);line-height:1.55;margin-bottom:20px}
+.vision-card__sub{font-size:13px;color:var(--text-muted);line-height:1.7}
+.vision-card__author{margin-top:20px;font-size:12px;color:var(--text-faint);font-style:italic}
+
+/* BTN */
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:11px 24px;border-radius:var(--radius);transition:all var(--t);cursor:pointer;border:none}
+.btn--ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
+.btn--ghost:hover{border-color:var(--text-faint);color:var(--text)}
+
+/* FOOTER */
+.footer{padding-block:32px;border-top:1px solid var(--border)}
+.footer__inner{display:flex;align-items:center;justify-content:space-between}
+.footer__copy{font-size:12px;color:var(--text-faint)}
+.footer__back{font-size:12px;color:var(--text-faint);transition:color var(--t)}
+.footer__back:hover{color:var(--gold)}
+
+/* LIGHTBOX */
+.lightbox{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:24px}
+.lightbox.open{display:flex}
+.lightbox img{max-width:92vw;max-height:90vh;border-radius:8px;box-shadow:0 40px 80px rgba(0,0,0,.8)}
+.lightbox__close{position:absolute;top:20px;right:24px;font-size:28px;color:var(--text-muted);cursor:pointer;background:none;border:none;line-height:1;transition:color var(--t)}
+.lightbox__close:hover{color:var(--text)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .metrics-strip__grid{grid-template-columns:repeat(3,1fr)}
+  .metric-block:nth-child(3){border-right:none}
+  .metric-block:nth-child(1),.metric-block:nth-child(2),.metric-block:nth-child(3){border-bottom:1px solid var(--border);padding-bottom:20px;margin-bottom:20px}
+  .product-grid{grid-template-columns:1fr}
+  .solution-flow{grid-template-columns:1fr}
+  .problem-stats{grid-template-columns:1fr}
+  .docs-grid{grid-template-columns:1fr}
+  .lessons-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .nav__links{display:none}
+  .nav__links.open{display:flex;flex-direction:column;position:fixed;top:60px;left:0;right:0;background:var(--bg);border-bottom:1px solid var(--border);padding:24px;gap:20px;align-items:flex-start}
+  .nav__toggle{display:flex}
+  .project-hero__meta{gap:16px}
+  .comp-table{font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="container nav__inner">
+    <a href="index.html" class="nav__logo">Mahmoud <span>Abdo-Raboh</span></a>
+    <ul class="nav__links">
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="index.html#projects">Projects</a></li>
+      <li><a href="index.html#experience">Experience</a></li>
+      <li><a href="index.html#skills">Skills</a></li>
+      <li><a href="index.html#resume" class="nav__cta">Resume</a></li>
+    </ul>
+    <button class="nav__toggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="project-hero">
+  <div class="container">
+    <a href="index.html#projects" class="project-hero__back">← Back to Projects</a>
+
+    <div class="project-hero__tag">Sustainability · Circular Economy · Smart Infrastructure · Egypt · 2023–2026</div>
+    <h1 class="project-hero__title">Closing the Loop on<br>Egypt's Recycling Gap</h1>
+    <p class="project-hero__subtitle">
+      EcoLoop is a B2B2C coordination platform connecting residential compounds,
+      verified collection partners, and recycling companies through smart physical
+      infrastructure and a lightweight digital layer — designed specifically for
+      the Egyptian urban market.
+    </p>
+
+    <div class="project-hero__meta">
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">Role</span>
+        <span class="project-hero__meta-value">Solo Founder — Research &amp; Design</span>
+      </div>
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">Model</span>
+        <span class="project-hero__meta-value">B2B2C — Compound Entry Point</span>
+      </div>
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">Market</span>
+        <span class="project-hero__meta-value">Egypt — Urban Residential</span>
+      </div>
+      <div class="project-hero__meta-item">
+        <span class="project-hero__meta-label">Status</span>
+        <span class="project-hero__meta-value">Product Design Stage</span>
+      </div>
+    </div>
+
+    <div class="hero-status">
+      <span class="hero-status__dot"></span>
+      Seeking First Pilot Partner
+    </div>
+
+    <p class="hero-founder">Independently researched and designed over 2 years by <span>Mahmoud Abdo-Raboh</span></p>
+  </div>
+</header>
+
+<!-- METRICS -->
+<div class="metrics-strip">
+  <div class="container">
+    <div class="metrics-strip__grid">
+      <div class="metric-block">
+        <div class="metric-block__num">76K</div>
+        <div class="metric-block__label">Tons of Waste<br>Generated Daily</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-block__num">&lt;15%</div>
+        <div class="metric-block__label">Formal Recycling<br>Rate in Egypt</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-block__num">4</div>
+        <div class="metric-block__label">Product Models<br>Designed</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-block__num">$5B+</div>
+        <div class="metric-block__label">Egyptian Waste<br>Market Size</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-block__num">3</div>
+        <div class="metric-block__label">Market Segments<br>Covered</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="project-content">
+  <div class="container">
+
+    <!-- 01 Problem -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">01</span>
+        <h2 class="project-section__title">The Problem</h2>
+      </div>
+      <div class="project-section__body">
+        <p>Egypt generates approximately 76,000 tons of municipal solid waste every single day. Less than 15% is formally recycled. The rest is landfilled, burned, or absorbed by informal networks that operate entirely outside any data or accountability system.</p>
+        <p>The gap is not a lack of recyclable material — it is a structural disconnect between three actors who never effectively communicate: households that generate waste, collection services that move it, and recycling companies that need it sorted and consistent. Households don't separate waste at source because they see no direct benefit, have no reliable infrastructure to receive what they separate, and receive no guidance on how to do it correctly.</p>
+        <p>The problem is behavioral and infrastructural — not material. Egypt doesn't lack recyclable waste. It lacks a coordination layer that makes recycling the path of least resistance rather than the path of most effort.</p>
+      </div>
+      <div class="problem-stats">
+        <div class="problem-stat">
+          <div class="problem-stat__num">76,600 t</div>
+          <div class="problem-stat__label">Municipal waste generated daily (CAPMAS)</div>
+        </div>
+        <div class="problem-stat">
+          <div class="problem-stat__num">~28M t</div>
+          <div class="problem-stat__label">Annual waste volume — growing with urbanization</div>
+        </div>
+        <div class="problem-stat">
+          <div class="problem-stat__num">80–88%</div>
+          <div class="problem-stat__label">Of waste ends up in open dumpsites despite collection</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 Solution -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">02</span>
+        <h2 class="project-section__title">The Solution</h2>
+      </div>
+      <div class="project-section__body" style="margin-bottom:24px">
+        <p>EcoLoop is a coordination layer — not another consumer app. Rather than acquiring users one household at a time, EcoLoop enters through property managers of residential compounds as a B2B entry point. One decision from one manager covers 80–200+ units. This creates a structured, predictable supply chain for recycling companies that currently depend on inconsistent informal networks.</p>
+      </div>
+      <div class="solution-flow">
+        <div class="flow-card">
+          <div class="flow-card__num">01</div>
+          <div class="flow-card__title">Compound Entry</div>
+          <div class="flow-card__text">Property managers sign up as the B2B customer. EcoLoop installs smart recycling stations in strategic locations across the compound — one station per 80–120 units.</div>
+          <span class="flow-card__tag">B2B — Zero Consumer Friction</span>
+        </div>
+        <div class="flow-card">
+          <div class="flow-card__num">02</div>
+          <div class="flow-card__title">Structured Collection</div>
+          <div class="flow-card__text">Residents separate waste into color-coded compartments. IoT fill-level sensors notify verified collection partners when stations are ready. Routes are optimized automatically.</div>
+          <span class="flow-card__tag">Smart Infrastructure</span>
+        </div>
+        <div class="flow-card">
+          <div class="flow-card__num">03</div>
+          <div class="flow-card__title">Data as Product</div>
+          <div class="flow-card__text">Every collection is logged: compound, date, material type, weight. Recycling companies pay for reliable, sortable supply with advance visibility — the data makes that possible.</div>
+          <span class="flow-card__tag">Revenue from B2B Data</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 Product Line -->
+<div class="project-section">
+  <div class="project-section__header">
+    <span class="project-section__num">03</span>
+    <h2 class="project-section__title">Product Line</h2>
+  </div>
+  <div class="project-section__body" style="margin-bottom:24px">
+    <p>EcoLoop's physical infrastructure is designed across four models, each tailored to a specific environment — from large residential compounds to schools, offices, and commercial spaces. All models share the same smart connectivity stack and branding system.</p>
+  </div>
+  <div class="product-grid">
+    <div class="product-card" onclick="openLightbox('../assets/Images/EcoLoop-Hub-Smart-Collection-Station.jpeg')">
+      <img src="../assets/Images/EcoLoop-Hub-Smart-Collection-Station.jpeg" alt="EcoLoop Hub — Smart Collection Station"/>
+      <div class="product-card__overlay">
+        <div class="product-card__label">Model Hub</div>
+        <div class="product-card__title">Smart Collection Station — Residential Communities</div>
+      </div>
+    </div>
+    <div class="product-card" onclick="openLightbox('../assets/Images/EcoLoop-Compounds-Smart-Ecosystem.jpeg')">
+      <img src="../assets/Images/EcoLoop-Compounds-Smart-Ecosystem.jpeg" alt="EcoLoop Compounds Smart Ecosystem"/>
+      <div class="product-card__overlay">
+        <div class="product-card__label">Model R5</div>
+        <div class="product-card__title">Residential Station — Large Capacity Smart Design</div>
+      </div>
+    </div>
+    <div class="product-card" onclick="openLightbox('../assets/Images/EcoLoop-Residential-Station-Model-R5-Specifications.jpeg')">
+      <img src="../assets/Images/EcoLoop-Residential-Station-Model-R5-Specifications.jpeg" alt="EcoLoop Residential Station Specifications"/>
+      <div class="product-card__overlay">
+        <div class="product-card__label">Model R5 Specs</div>
+        <div class="product-card__title">Smart Recycling Ecosystem — Residential Compounds</div>
+      </div>
+    </div>
+    <div class="product-card" onclick="openLightbox('../assets/Images/EcoLoop-Smart-Recycling-Solution-Overview.jpeg')">
+      <img src="../assets/Images/EcoLoop-Smart-Recycling-Solution-Overview.jpeg" alt="EcoLoop Smart Recycling Solutions Overview"/>
+      <div class="product-card__overlay">
+        <div class="product-card__label">Full Product Family</div>
+        <div class="product-card__title">Smart Recycling Solutions — Every Community</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 04 Business Model -->
+<div class="project-section">
+  <div class="project-section__header">
+    <span class="project-section__num">04</span>
+    <h2 class="project-section__title">Business Model Canvas</h2>
+  </div>
+  <div class="bmc-wrap">
+    <img src="../assets/Images/EcoLoop-BMC.jpeg" alt="EcoLoop Business Model Canvas"/>
+  </div>
+  <div class="bmc-note">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Full BMC document available for download in the Documents section below.
+  </div>
+</div>
+
+    <!-- 05 Competitive Landscape -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">05</span>
+        <h2 class="project-section__title">Competitive Landscape</h2>
+      </div>
+      <div class="project-section__body" style="margin-bottom:24px">
+        <p>Every existing solution in Egypt and the MENA region solves one side of the equation. None of them solve the coordination problem between all three actors simultaneously — and none enter through the compound manager as a B2B aggregation point.</p>
+      </div>
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Market</th>
+            <th>Model</th>
+            <th>What They Solve</th>
+            <th>The Gap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Bekia</strong></td>
+            <td>Egypt</td>
+            <td>B2C</td>
+            <td>Individual-to-collector connection, cash rewards</td>
+            <td><span class="gap-badge gap-badge--miss">No B2B aggregation</span></td>
+          </tr>
+          <tr>
+            <td><strong>Big Scrappers</strong></td>
+            <td>Egypt</td>
+            <td>B2C + B2B</td>
+            <td>Home pickup, focus on metals &amp; aluminium</td>
+            <td><span class="gap-badge gap-badge--miss">No compound strategy</span></td>
+          </tr>
+          <tr>
+            <td><strong>Drop Me</strong></td>
+            <td>Egypt</td>
+            <td>Hardware</td>
+            <td>Recycling vending machines, real-time tracking</td>
+            <td><span class="gap-badge gap-badge--miss">High capex, slow scale</span></td>
+          </tr>
+          <tr>
+            <td><strong>Plstka</strong></td>
+            <td>Egypt</td>
+            <td>B2C App</td>
+            <td>Gamification, behavioral change</td>
+            <td><span class="gap-badge gap-badge--miss">No supply chain</span></td>
+          </tr>
+          <tr>
+            <td><strong>Sparklo</strong></td>
+            <td>MENA</td>
+            <td>Hardware</td>
+            <td>AI-powered reverse vending machines</td>
+            <td><span class="gap-badge gap-badge--miss">Infrastructure-heavy</span></td>
+          </tr>
+          <tr class="highlight">
+            <td><strong>EcoLoop</strong></td>
+            <td>Egypt</td>
+            <td>B2B2C</td>
+            <td>Compound-level aggregation + smart stations + recycler supply chain</td>
+            <td><span class="gap-badge gap-badge--win">Full coordination layer</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 06 MVP Scope -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">06</span>
+        <h2 class="project-section__title">MVP Scope</h2>
+      </div>
+      <div class="project-section__body" style="margin-bottom:24px">
+        <p>The MVP tests one hypothesis: if a property manager can request a scheduled recyclable waste collection through a simple digital interface, and a verified recycling partner shows up reliably, will compounds adopt the behavior consistently? Everything else is deferred until that question is answered.</p>
+      </div>
+      <div class="solution-flow">
+        <div class="flow-card">
+          <div class="flow-card__num">01</div>
+          <div class="flow-card__title">Web App — Not Native</div>
+          <div class="flow-card__text">Two portals only: Compound Manager (request, schedule, report) and Recycling Partner (view, confirm, log). No consumer registration. No App Store dependency.</div>
+          <span class="flow-card__tag">One City Only — Cairo or Alexandria</span>
+        </div>
+        <div class="flow-card">
+          <div class="flow-card__num">02</div>
+          <div class="flow-card__title">3–5 Verified Partners</div>
+          <div class="flow-card__text">Manually onboard licensed recycling companies. Human coordinator manages matching in Phase 1. Algorithm comes later, after behavior is proven.</div>
+          <span class="flow-card__tag">No Algorithm in Phase 1</span>
+        </div>
+        <div class="flow-card">
+          <div class="flow-card__num">03</div>
+          <div class="flow-card__title">90-Day Target</div>
+          <div class="flow-card__text">5–10 compounds onboarded. 20+ collections completed. One metric that matters: at least 70% of compound managers request a second collection.</div>
+          <span class="flow-card__tag">Repeat Behavior = Model Works</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07 Documents -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">07</span>
+        <h2 class="project-section__title">Research Documents</h2>
+      </div>
+      <div class="docs-grid">
+        <div class="doc-card">
+          <div class="doc-card__icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div>
+            <div class="doc-card__title">Problem &amp; Market Statement</div>
+            <div class="doc-card__sub">Egypt waste data · Market size · Core insight</div>
+            <a href="../assets/Documents/EcoLoop_Problem_Market_Statement.pdf" target="_blank" class="doc-card__link">↗ View PDF</a>
+          </div>
+        </div>
+        <div class="doc-card">
+          <div class="doc-card__icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          </div>
+          <div>
+            <div class="doc-card__title">Business Model Canvas</div>
+            <div class="doc-card__sub">9-block BMC · Revenue streams · Key partnerships</div>
+            <a href="../assets/Documents/EcoLoop_Business_Model_Canvas.pdf" target="_blank" class="doc-card__link">↗ View PDF</a>
+          </div>
+        </div>
+        <div class="doc-card">
+          <div class="doc-card__icon">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <div>
+            <div class="doc-card__title">Competitive Landscape</div>
+            <div class="doc-card__sub">Egypt · MENA · Global · Gap analysis</div>
+            <a href="../assets/Documents/EcoLoop_Competitive_Landscape.pdf" target="_blank" class="doc-card__link">↗ View PDF</a>
+          </div>
+        </div>
+        <div class="doc-card">
+          <div class="doc-card__icon">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div>
+            <div class="doc-card__title">MVP Scope Document</div>
+            <div class="doc-card__sub">What's in · What's out · 90-day targets</div>
+            <a href="../assets/Documents/EcoLoop_MVP_Scope.pdf" target="_blank" class="doc-card__link">↗ View PDF</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 08 Lessons -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">08</span>
+        <h2 class="project-section__title">Lessons from 2 Years</h2>
+      </div>
+      <div class="lessons-grid">
+        <div class="lesson-card">
+          <div class="lesson-card__title">The coordination problem is harder than the tech problem</div>
+          <div class="lesson-card__text">Every time I tried to build the app, I hit the same wall: who collects the waste, and how do recycling companies get consistent supply? The platform is only useful if the logistics work first. I spent two years solving the wrong layer.</div>
+        </div>
+        <div class="lesson-card">
+          <div class="lesson-card__title">B2B entry point unlocks everything</div>
+          <div class="lesson-card__text">The insight that changed the model: stop trying to change individual behavior at scale. Enter through the compound manager. One decision covers hundreds of households. That's when the unit economics started making sense.</div>
+        </div>
+        <div class="lesson-card">
+          <div class="lesson-card__title">Academic institutions are not startup incubators</div>
+          <div class="lesson-card__text">Two years of trying to get institutional support taught me that universities optimize for papers and presentations, not pilots. The work that moved EcoLoop forward happened outside the curriculum entirely.</div>
+        </div>
+        <div class="lesson-card">
+          <div class="lesson-card__title">A complete concept is a real deliverable</div>
+          <div class="lesson-card__text">Documentation, product design, competitive research, and MVP scoping — these are not preparation for real work. They are the work. EcoLoop is not launched, but it is not an idea either. It is a startup waiting for its first partner.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 09 Vision -->
+    <div class="project-section">
+      <div class="project-section__header">
+        <span class="project-section__num">09</span>
+        <h2 class="project-section__title">Why This Matters</h2>
+      </div>
+      <div class="vision-card">
+        <div class="vision-card__quote">"Egypt doesn't have a waste problem. It has a coordination problem. The material is there. The informal networks are there. The recycling industry is there. What's missing is the layer that connects them reliably — and makes that connection the default, not the exception."</div>
+        <div class="vision-card__sub">EcoLoop was developed independently over two years, without institutional support, team, or funding. The concept is complete — from market research to product design to MVP scope. Execution awaits the right operational partner or investor who sees what this coordination layer can become at scale.</div>
+        <div class="vision-card__author">— Mahmoud Abdo-Raboh, Founder</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<section style="background:var(--bg-2);border-top:1px solid var(--border);padding-block:64px">
+  <div class="container">
+    <div class="section-label" style="margin-bottom:24px">Other Projects</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <a href="pms.html" class="btn btn--ghost">PMS →</a>
+      <a href="coda.html" class="btn btn--ghost">CODA →</a>
+      <a href="edugrip.html" class="btn btn--ghost">EDUGRIP →</a>
+      <a href="index.html" class="btn btn--ghost">← Back to Portfolio</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <div class="footer__copy">© 2026 Mahmoud Abdo-Raboh</div>
+    <a href="index.html" class="footer__back">← Portfolio Home</a>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox__close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt=""/>
+</div>
+
+<script>
+/* Nav toggle */
+const toggle = document.querySelector('.nav__toggle');
+const links  = document.querySelector('.nav__links');
+if (toggle && links) {
+  toggle.addEventListener('click', () => links.classList.toggle('open'));
+  links.querySelectorAll('a').forEach(a =>
+    a.addEventListener('click', () => links.classList.remove('open'))
+  );
+}
+
+/* Lightbox */
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+/* Scroll fade-in */
+if ('IntersectionObserver' in window) {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.style.opacity  = '1';
+      e.target.style.transform = 'translateY(0)';
+      obs.unobserve(e.target);
+    });
+  }, { threshold: 0.06 });
+  document.querySelectorAll(
+    '.project-section, .flow-card, .product-card, .doc-card, .lesson-card, .problem-stat, .vision-card'
+  ).forEach(el => {
+    el.style.opacity    = '0';
+    el.style.transform  = 'translateY(14px)';
+    el.style.transition = 'opacity .4s ease, transform .4s ease';
+    obs.observe(el);
+  });
+}
+</script>
+</body>
+</html>
